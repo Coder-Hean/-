@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.shop.bank.mapper.AccountMapper">
+
+    <!-- 根据卡号查询账户信息 -->
+    <!-- 修改查询语句的列名 -->
+    <select id="selectByCardNumber" resultType="com.shop.bank.pojo.Account">
+        SELECT
+        a.card_number as cardNumber,
+        a.customer_id as customerId,
+        c.name as name,  <!-- 添加客户姓名 -->
+        a.balance as balance,
+        a.status as status,
+        a.open_date as openDate
+        FROM Accounts a
+        LEFT JOIN Customers c ON a.customer_id = c.customer_id
+        WHERE a.card_number = #{cardNumber}
+    </select>
+
+    <!-- 修改插入语句的列名 -->
+    <insert id="insertAccount" parameterType="com.shop.bank.pojo.Account">
+        INSERT INTO Accounts (
+            card_number,
+            customer_id,
+            balance,
+            status,
+            open_date
+        ) VALUES (
+                     #{cardNumber},
+                     #{customerId},
+                     #{balance},
+                     #{status},
+                     #{openDate}
+                 )
+    </insert>
+
+    <!-- 修改更新语句的列名 -->
+    <update id="updateBalanceByCardNumber">
+        UPDATE Accounts
+        SET balance = balance + #{amount}
+        WHERE card_number = #{cardNumber}
+    </update>
+
+    <!-- 修改检查语句的列名 -->
+    <select id="existsByCardNumber" resultType="boolean">
+        SELECT EXISTS(SELECT 1 FROM Accounts WHERE card_number = #{cardNumber})
+    </select>
+
+</mapper>

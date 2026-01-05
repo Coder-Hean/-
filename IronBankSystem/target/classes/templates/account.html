@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8" />
+    <title>铁金库银行账户管理系统</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+
+        body {
+            background-color: #f0f2f5;
+            font-family: 'Segoe UI', sans-serif;
+            min-height: 100vh;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .system-title {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin: 0;
+        }
+
+        .logo-icon {
+            font-size: 1.8rem;
+            margin-right: 10px;
+        }
+
+        .btn-logout {
+            background: rgba(255,255,255,0.2);
+            border: 1px solid rgba(255,255,255,0.3);
+            color: white;
+            border-radius: 20px;
+            padding: 8px 20px;
+            transition: all 0.3s ease;
+        }
+
+        .btn-logout:hover {
+            background: rgba(255,255,255,0.3);
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 30px auto;
+            padding: 0 20px;
+        }
+
+        .card {
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            border: none;
+            overflow: hidden;
+            margin-bottom: 20px;
+        }
+
+        .divider {
+            height: 2px;
+            background: linear-gradient(to right, transparent, #ddd, transparent);
+            margin: 20px 0;
+        }
+
+        .form-section {
+            padding: 30px;
+            text-align: center;
+        }
+
+        .atm-section {
+            padding: 40px 20px;
+            text-align: center;
+        }
+
+        .welcome-text {
+            font-size: 1.8rem;
+            color: #333;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+
+        .card-number {
+            font-size: 1.2rem;
+            color: #666;
+            margin-bottom: 30px;
+            font-family: monospace;
+        }
+
+        .balance-display {
+            font-size: 1.4rem;
+            color: #28a745;
+            font-weight: bold;
+            margin: 15px 0;
+        }
+
+        .atm-buttons {
+            display: flex;
+            justify-content: space-around;
+            flex-wrap: wrap;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .atm-btn {
+            width: 120px;
+            height: 50px;
+            margin: 10px;
+            border-radius: 10px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .btn-deposit { background: linear-gradient(45deg, #2ecc71, #27ae60); color: white; }
+        .btn-withdraw { background: linear-gradient(45deg, #e74c3c, #c0392b); color: white; }
+        .btn-balance { background: linear-gradient(45deg, #3498db, #2980b9); color: white; }
+        .btn-transfer { background: linear-gradient(45deg, #9b59b6, #8e44ad); color: white; }
+
+        .atm-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .form-control {
+            border-radius: 10px;
+            height: 50px;
+            font-size: 1.1rem;
+        }
+
+        .btn-submit {
+            border-radius: 10px;
+            height: 50px;
+            font-weight: bold;
+            width: 100%;
+            margin-top: 20px;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .operation-section {
+            padding: 30px;
+            text-align: center;
+        }
+
+        .operation-form {
+            max-width: 400px;
+            margin: 0 auto;
+        }
+
+        .back-btn {
+            background: #6c757d;
+            border: none;
+            color: white;
+            border-radius: 8px;
+            padding: 8px 20px;
+            margin-top: 20px;
+        }
+
+        .back-btn:hover {
+            background: #545b62;
+        }
+
+        .alert-custom {
+            margin-top: 15px;
+            padding: 10px;
+            border-radius: 8px;
+        }
+    </style>
+</head>
+<body>
+<div class="container-fluid">
+    <!-- 头部 -->
+    <div class="header">
+        <div class="d-flex align-items-center">
+            <i class="fas fa-university logo-icon"></i>
+            <h4 class="system-title">铁金库银行账户管理系统</h4>
+        </div>
+        <a th:href="@{/}" class="btn btn-logout">
+            <i class="fas fa-sign-out-alt me-2"></i>退出账户
+        </a>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="container">
+        <!-- 查询区域（默认显示） -->
+        <div th:if="${#strings.isEmpty(account)}" class="card">
+            <div class="form-section">
+                <h3 class="mb-4">账户管理</h3>
+
+                <!-- 查询账户表单 -->
+                <form th:action="@{/queryAccount}" method="post">
+                    <div class="mb-3">
+                        <input type="text" class="form-control" name="cardNumber"
+                               placeholder="请输入19位银行卡号" maxlength="19" required
+                               th:value="${param.cardNumber != null ? param.cardNumber[0] : ''}">
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-submit">查询账户</button>
+                </form>
+
+                <!-- 查询交易记录按钮 -->
+                <form id="transactionForm" th:action="@{/showTransactionPassword}" method="get" style="margin-top: 15px;">
+                    <input type="hidden" name="cardNumber" id="transactionCardNumber" />
+                    <button type="button" onclick="submitTransactionForm()" class="btn btn-secondary btn-submit">查询交易记录</button>
+                </form>
+                <script>
+                    function submitTransactionForm() {
+                        var cardNumber = document.querySelector('input[name="cardNumber"]').value;
+                        if (cardNumber) {
+                            document.getElementById('transactionCardNumber').value = cardNumber;
+                            document.getElementById('transactionForm').submit();
+                        } else {
+                            alert('请输入银行卡号');
+                        }
+                    }
+                </script>
+
+                <!-- 错误提示 -->
+                <div th:if="${errorMessage}" class="mt-3 alert-custom bg-danger text-white">
+                    <span th:text="${errorMessage}"></span>
+                </div>
+            </div>
+        </div>
+
+        <!-- ATM 主界面（当 account 存在时显示） -->
+        <div th:unless="${#strings.isEmpty(account)}" class="card">
+            <div class="atm-section">
+                <div class="welcome-text" th:text="'铁金库欢迎您，' + ${account?.name} + '！'">铁金库欢迎您，张三！</div>
+                <div class="card-number" th:text="${account.cardNumber}">622208XXXXXXXXXXXXX</div>
+                <div class="balance-display" th:text="'¥' + ${#numbers.formatDecimal(account.balance, 1, 2)}">¥0.00</div>
+
+                <div class="atm-buttons">
+                    <!-- 存款 -->
+                    <form th:action="@{/showDeposit}" method="get" style="width:120px;">
+                        <input type="hidden" name="cardNumber" th:value="${account.cardNumber}" />
+                        <button type="submit" class="atm-btn btn-deposit w-100">
+                            <i class="fas fa-arrow-down me-2"></i>存款
+                        </button>
+                    </form>
+
+                    <!-- 取款 -->
+                    <form th:action="@{/showWithdraw}" method="get" style="width:120px;">
+                        <input type="hidden" name="cardNumber" th:value="${account.cardNumber}" />
+                        <button type="submit" class="atm-btn btn-withdraw w-100">
+                            <i class="fas fa-arrow-up me-2"></i>取款
+                        </button>
+                    </form>
+
+                    <!-- 刷新余额（重新查询） -->
+                    <form th:action="@{/queryAccount}" method="post" style="width:120px;">
+                        <input type="hidden" name="cardNumber" th:value="${account.cardNumber}" />
+                        <button type="submit" class="atm-btn btn-balance w-100">
+                            <i class="fas fa-sync-alt me-2"></i>刷新余额
+                        </button>
+                    </form>
+
+                    <!-- 转账 -->
+                    <form th:action="@{/showTransfer}" method="get" style="width:120px;">
+                        <input type="hidden" name="cardNumber" th:value="${account.cardNumber}" />
+                        <button type="submit" class="atm-btn btn-transfer w-100">
+                            <i class="fas fa-exchange-alt me-2"></i>转账
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- 存款表单（由 /showDeposit 跳转至此，并携带 account） -->
+        <div th:if="${depositForm}" class="card">
+            <div class="operation-section">
+                <h4>存款</h4>
+                <div class="operation-form">
+                    <form th:action="@{/deposit}" method="post">
+                        <input type="hidden" name="cardNumber" th:value="${account.cardNumber}" />
+                        <div class="mb-3">
+                            <input type="number" class="form-control" name="amount"
+                                   placeholder="输入存款金额" step="0.01" min="0.01" required>
+                        </div>
+                        <button type="submit" class="btn btn-success w-100">确认存款</button>
+                        <a th:href="@{/queryAccount(cardNumber=${account.cardNumber})}" class="btn back-btn mt-2">返回</a>
+                    </form>
+                    <div th:if="${depositMessage}" class="mt-3 alert-custom"
+                         th:classappend="${depositSuccess} ? 'bg-success text-white' : 'bg-danger text-white'"
+                         th:text="${depositMessage}">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 取款表单（由 /showWithdraw 跳转） -->
+        <div th:if="${withdrawForm}" class="card">
+            <div class="operation-section">
+                <h4>取款</h4>
+                <div class="operation-form">
+                    <form th:action="@{/withdraw}" method="post">
+                        <input type="hidden" name="cardNumber" th:value="${account.cardNumber}" />
+                        <div class="mb-3">
+                            <input type="number" class="form-control" name="amount"
+                                   placeholder="输入取款金额" step="0.01" min="0.01" required>
+                        </div>
+                        <div class="mb-3">
+                            <input type="password" class="form-control" name="password"
+                                   placeholder="输入支付密码" maxlength="6" required>
+                        </div>
+                        <button type="submit" class="btn btn-danger w-100">确认取款</button>
+                        <a th:href="@{/queryAccount(cardNumber=${account.cardNumber})}" class="btn back-btn mt-2">返回</a>
+                    </form>
+                    <div th:if="${withdrawMessage}" class="mt-3 alert-custom"
+                         th:classappend="${withdrawSuccess} ? 'bg-success text-white' : 'bg-danger text-white'"
+                         th:text="${withdrawMessage}">
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- 转账表单 -->
+        <div th:if="${transferForm}" class="card">
+            <div class="operation-section">
+                <h4>转账</h4>
+                <div class="operation-form">
+                    <form th:action="@{/transfer}" method="post">
+                        <input type="hidden" name="cardNumber" th:value="${param.cardNumber != null ? param.cardNumber[0] : ''}" />
+                        <div class="mb-3">
+                            <input type="text" class="form-control" name="toCardNumber"
+                                   placeholder="输入对方银行卡号" maxlength="19" required>
+                        </div>
+                        <div class="mb-3">
+                            <input type="number" class="form-control" name="amount"
+                                   placeholder="输入转账金额" step="0.01" min="0.01" required>
+                        </div>
+                        <div class="mb-3">
+                            <input type="password" class="form-control" name="password"
+                                   placeholder="输入支付密码" maxlength="6" required>
+                        </div>
+                        <button type="submit" class="btn btn-warning w-100">确认转账</button>
+                        <a th:href="@{/queryAccount(cardNumber=${account.cardNumber})}" class="btn back-btn mt-2">返回</a>
+                        <div th:if="${transferMessage}" class="mt-3 alert-custom"
+                             th:classappend="${transferSuccess} ? 'bg-success text-white' : 'bg-danger text-white'"
+                             th:text="${transferMessage}">
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <!-- 交易记录密码验证 -->
+        <div th:if="${transactionPasswordForm}" class="card">
+            <div class="operation-section">
+                <h4>查询交易记录</h4>
+                <div class="operation-form">
+                    <form th:action="@{/verifyTransactionPassword}" method="post">
+                        <input type="hidden" name="cardNumber" th:value="${account.cardNumber}" />
+                        <div class="mb-3">
+                            <input type="password" class="form-control" name="password" placeholder="输入6位支付密码" maxlength="6" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100">确认</button>
+                        <a th:href="@{/}" class="btn back-btn mt-2">返回</a>
+                    </form>
+                    <div th:if="${transactionErrorMessage}" class="mt-3 alert-custom bg-danger text-white"
+                         th:text="${transactionErrorMessage}">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
