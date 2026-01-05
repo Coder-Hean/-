@@ -389,12 +389,6 @@ java -jar target/BankSystem-1.0.jar
 
 本项目采用MIT许可证，详见LICENSE文件。
 
-## 联系方式
-
-- 项目地址：https://github.com/yourusername/IronBankSystem
-- 作者：Your Name
-- 邮箱：your.email@example.com
-- 如有问题或建议，欢迎提交Issue或Pull Request
 
 ## 更新日志
 
